@@ -1,13 +1,71 @@
 package hw3
 
+import scala.collection.mutable
+
 object Main {
-  def standardDeviation(vector: List[Double]): Double = ???
+  def standardDeviation(vector: List[Double]): Double = {
+    if(vector.isEmpty)
+      return 0.0
+    Math.sqrt(vector.foldLeft(0.0)((x,y) => {x + Math.pow(y - vector.sum/vector.size, 2)})/vector.size)
+  }
 
-  def letterFrequencyRanking(corpus: String): String = ???
+  def letterFrequencyRanking(corpus: String): String = {
+    val freqMap = new mutable.HashMap[Char,Int]()
+    for(c <- corpus)
+      if(c.isLetterOrDigit) {
+        val d = c.toLower
+        if(freqMap.contains(d))
+          freqMap.put(d, freqMap(d) + 1)
+        else
+          freqMap.put(d, 1)
+      }
+    val sortedSeq = freqMap.toSeq.sortWith((x,y) => x._2 > y._2 || x._2 == y._2 && x._1 < y._1)
+    sortedSeq.foldLeft("")((x,y) => {x + y._1})
+  }
 
-  def romanji(katakana: String): String = ???
+  def romanji(katakana: String): String = {
+    katakana.foldLeft("")((r, c) => {
+      c match {
+        case 'ン' =>
+          if (r.length > 1 && ( r.endsWith("na") || r.endsWith("ni") || r.endsWith("nu") || r.endsWith("ne") || r.endsWith("no")))
+            r + "escSeq"
+          else
+            r
+        case 'ッ' => r + "escSeq"
+        case 'ャ' | 'ュ' | 'ョ' =>
+          if ((r.length > 0) && (r.last equals 'i'))
+            r.substring(0, r.length - 1) + Katakana.symbols(c).foldLeft("")(_ + _)
+          else
+            r
+        case 'ー' => r.substring(0, r.length - 1) + Katakana.longVowels(r.last).toString
+        case _ =>
+          if(r.length > 5 && r.endsWith("escSeq"))
+            r.substring(0, r.length - 6) + Katakana.symbols(c).head + Katakana.symbols(c).foldLeft("")(_ + _)
+          else
+            r + Katakana.symbols(c).foldLeft("")(_ + _)
+      }
+    })
+  }
 
-  def gray(bits: Int): List[String] = ???
+  def gray(bits: Int): List[String] = {
+    val r: mutable.ListBuffer[String] = mutable.ListBuffer[String]()
+    if (bits <= 0) return r.toList
+    r.addAll(mutable.ListBuffer("0", "1"))
+    var i = 2
+    while(i < (1 << bits)) {
+      for(j <- (i - 1) to 0 by -1) {
+        r.addOne(r(j))
+      }
+      for(j <- 0 until i) {
+        r(j) = "0" + r(j)
+      }
+      for(j <- i until 2*i) {
+        r(j) = "1" + r(j)
+      }
+      i = i << 1
+    }
+    r.toList
+  }
 }
 
 object Katakana {

@@ -23,4 +23,7 @@ class StandardDeviationTest extends FunSuite with Matchers {
      */
     standardDeviation(List(42)) shouldBe 0.0
   }
+  test("empty list example") {
+    standardDeviation(List()) shouldBe 0.0
+  }
 }
